@@ -32,10 +32,11 @@ logistic-regression/
 ```mermaid
 flowchart TD
 
-A[Start Epoch] --> B[Forward Pass<br/>Compute z = Xw + b<br/>Compute ŷ = sigmoid(z)]
-B --> C[Compute Loss<br/>Binary Cross-Entropy]
-C --> D[Backward Pass<br/>Compute Gradients:<br/>dW = Xᵀ(ŷ - y)<br/>dB = Σ(ŷ - y)]
-D --> E[Update Weights<br/>w = w - lr * dW<br/>b = b - lr * dB]
-E --> F[Record/Print Loss]
+A[Start Epoch] --> B[Forward Pass: compute z = Xw + b and y_hat = sigmoid(z)]
+B --> C[Compute Loss using cross entropy]
+C --> D[Backward Pass: compute gradients dW and dB]
+D --> E[Update Weights with gradient descent]
+E --> F[Record or print loss]
 F --> G[Next Epoch]
+
 ```
