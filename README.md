@@ -7,7 +7,11 @@ It works by training the model on existing data to find a linear boundary in the
 
 The training starts with random weights then it runs for many iterations and on each iteration the predication is measured against the labels to determine the loss using CrossEntropy loss function: L = -[y log(y-hat) + (1-y) log(1-y-hat)] 
 
-After that the gradient vlaue is calculated to update the weights based on the error to go up or down, the gradient decent function is calculated using the chain rule starting from the loss -> sigmoid -> linear function -> weight
+Forward pass: (Linear → Sigmoid → Loss → Gradients)
+
+After that the gradient vlaue is calculated to update the weights based on the error to go up or down, the gradient decent function is calculated using the chain rule:
+
+(Loss → Sigmoid → Linear → Weights)
 
 At the end of training, we find the weights that minimize the cross-entropy loss, so the predicted probabilities match the labels as closely as possible.
 
@@ -21,4 +25,17 @@ logistic-regression/
 │   └── training.ipynb
 │
 └── README.md
+```
+
+*Training Flow*
+
+```mermaid
+flowchart TD
+
+A[Start Epoch] --> B[Forward Pass<br/>Compute z = Xw + b<br/>Compute ŷ = sigmoid(z)]
+B --> C[Compute Loss<br/>Binary Cross-Entropy]
+C --> D[Backward Pass<br/>Compute Gradients:<br/>dW = Xᵀ(ŷ - y)<br/>dB = Σ(ŷ - y)]
+D --> E[Update Weights<br/>w = w - lr * dW<br/>b = b - lr * dB]
+E --> F[Record/Print Loss]
+F --> G[Next Epoch]
 ```
