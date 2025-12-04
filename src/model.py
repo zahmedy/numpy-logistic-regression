@@ -1,13 +1,15 @@
 import numpy as np
 
 class LogisticRegression:
-    def __init__(self, n_features , lr=0.01):
+    def __init__(self, n_features , lr=0.01, l2=0.0):
         # random weights
         self.weights = np.random.normal(0, 1, size=(n_features, 1))
         # bias
         self.bias = 0
         # learning rate
         self.lr = lr
+        # L2 regularization 
+        self.l2 = l2
 
     def forward(self, X):
         z = X @ self.weights + self.bias
@@ -27,5 +29,6 @@ class LogisticRegression:
         return dW, dB
 
     def update(self, dW, dB):
-        self.weights -= self.lr * dW
+        dW += self.l2 * self.weights
+        self.weights -= self.lr * dW 
         self.bias -= self.lr * dB
