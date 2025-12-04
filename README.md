@@ -45,7 +45,7 @@ for epoch in range(500):
 
 ```mermaid
 flowchart TD
-  A[Start Epoch] --> B[Forward Pass: z = Xw + b; ŷ = sigmoid|z|]
+  A[Start Epoch] --> B[Forward Pass: z = Xw + b; ŷ = sigmoid"("z")"]
   B --> C[Compute Loss: binary cross-entropy]
   C --> D[Backward Pass: gradients dW and dB]
   D --> E[Update Weights: gradient descent]
