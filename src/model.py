@@ -32,3 +32,15 @@ class LogisticRegression:
         dW += self.l2 * self.weights
         self.weights -= self.lr * dW 
         self.bias -= self.lr * dB
+    
+    def accuracy(self, y, y_hat):
+        preds = (y_hat >= 0.5).astype(int)
+        return (preds == y).mean()
+
+    class StandardScaler:
+        def fit(self, X):
+            self.mean = X.mean(axis=0)
+            self.std = X.std(axis=0)
+        def transform(self, X):
+            return (X - self.mean) / (self.std + 1e-8)
+    
