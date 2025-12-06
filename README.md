@@ -1,69 +1,66 @@
 # NumPy Logistic Regression
 
-Rebuilding binary logistic regression from scratch with nothing but NumPy. The goal of the project is to keep the math and code transparent so you can see every step: forward pass, cross-entropy loss, backpropagation, and gradient descent weight updates.
+Binary logistic regression rebuilt from first principles with nothing but NumPy. The repo is meant to be teaching-friendly: every step of the forward pass, cross-entropy loss, backpropagation, and gradient descent weight updates is visible and tweakable.
 
-## What you can do
-- Study a minimal, dependency-light implementation of logistic regression
-- Step through the full training loop to understand how gradients move weights
-- Run the included notebook to visualize loss curves and decision boundaries
-- Reuse the class in `src/model.py` for quick binary classification experiments
+## Highlights
+- Lightweight `LogisticRegression` + `StandardScaler` implemented in `src/model.py`
+- Two runnable notebooks:
+  - `notebooks/training.ipynb`: synthetic 2D blobs to show the full training loop and loss curve
+  - `notebooks/TitanicSurvaival.ipynb`: preprocess the Titanic survival data and train/evaluate the custom model
+- Plain NumPy math with optional L2 regularization (backward compatible with a `l2` parameter)
 
-## Quickstart
-1. Create and activate a virtual environment.
-2. Install the only dependency:
-   ```
+## Setup
+1. Create and activate a virtual environment (recommended).
+2. Install dependencies:
+   ```bash
    pip install -r requirements.txt
    ```
-3. Open `notebooks/training.ipynb` to train and visualize the model step-by-step.
+3. The Titanic CSV is already included in `data/titanic.csv`. If you want to re-fetch it later, use the OpenML `titanic` dataset (version 1).
+
+## Run the notebooks
+- `notebooks/training.ipynb`: walk through blob generation, training, and loss visualization.
+- `notebooks/TitanicSurvaival.ipynb`: cleans the Titanic data (one-hot encodes categoricals, scales features), trains the NumPy logistic regression, and prints train/test accuracy plus the strongest weight signals.
 
 ## Using the model in code
-The class exposes the core primitives you need for a training loop. A minimal example:
-
 ```python
 import numpy as np
-from src.model import LogisticRegression
+from src.model import LogisticRegression, StandardScaler
 
-X = np.random.randn(200, 2)           # features
-y = (X[:, 0] + X[:, 1] > 0).astype(int).reshape(-1, 1)  # labels
+X = np.random.randn(200, 2)
+y = (X[:, 0] + X[:, 1] > 0).astype(int).reshape(-1, 1)
 
-model = LogisticRegression(n_features=X.shape[1], lr=0.1)
+scaler = StandardScaler()
+scaler.fit(X)
+X_scaled = scaler.transform(X)
 
-for epoch in range(500):
-    _, y_hat = model.forward(X)
-    loss = model.loss(y, y_hat)
-    dW, dB = model.backward(X, y, y_hat)
+model = LogisticRegression(n_features=X.shape[1], lr=0.05, reg_lambda=0.001)
+
+for epoch in range(300):
+    _, y_hat = model.forward(X_scaled)
+    dW, dB = model.backward(X_scaled, y, y_hat)
     model.update(dW, dB)
-    if epoch % 100 == 0:
-        print(f\"epoch {epoch}: loss={loss:.4f}\")
 ```
 
 ## How the training loop works
-- **Forward pass**: compute linear logits `z = Xw + b`, then apply the sigmoid to map to probabilities.
-- **Loss**: binary cross-entropy `L = -[y log(y_hat) + (1 - y) log(1 - y_hat)]`.
-- **Backward pass**: gradients flow from loss → sigmoid → linear layer → weights and bias.
-- **Update**: gradient descent nudges parameters in the direction that lowers the loss.
-
-```mermaid
-flowchart TD
-  A[Start Epoch] --> B[Forward Pass: z = Xw + b; y_hat = sigmoid z]
-  B --> C[Compute Loss: binary cross-entropy]
-  C --> D[Backward Pass: gradients dW and dB]
-  D --> E[Update Weights: gradient descent]
-  E --> F[Track loss / metrics]
-  F --> G[Next Epoch]
-```
+- **Forward**: logits `z = Xw + b`, probabilities `sigmoid(z)`
+- **Loss**: binary cross-entropy + optional L2
+- **Backward**: gradients for weights/bias from prediction error
+- **Update**: gradient descent using the chosen learning rate
 
 ## Project structure
 ```
 numpy-logistic-regression/
+├── data/
+│   └── titanic.csv        # cached Titanic survival dataset
 ├── src/
-│   └── model.py           # LogisticRegression class (forward, loss, backward, update)
+│   └── model.py           # LogisticRegression + StandardScaler
 ├── notebooks/
-│   └── training.ipynb     # Interactive walkthrough and visualization
+│   ├── training.ipynb     # synthetic 2D demo
+│   └── TitanicSurvaival.ipynb  # Titanic preprocessing + training
 └── README.md
 ```
 
-## Roadmap ideas
-- Add simple train/eval utilities and accuracy reporting
-- Extend to multiclass softmax regression
-- Package for pip installation once the public API settles
+## Notes and next steps
+- The model is binary-only; extending to softmax for multiclass is a natural follow-up.
+- Add unit tests around the training loop and gradient correctness.
+- Wrap the class for pip installation once the API stabilizes.
